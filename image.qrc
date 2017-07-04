@@ -1,0 +1,53 @@
+<RCC>
+    <qresource prefix="/menuImage">
+        <file>image/alarm.png</file>
+    </qresource>
+    <qresource prefix="/qss">
+        <file>qss/adrawmainwindow.qss</file>
+    </qresource>
+    <qresource prefix="/">
+        <file>image/line/StyleCustomDashLine.png</file>
+        <file>image/line/StyleDashDotDotLine.png</file>
+        <file>image/line/StyleDashDotLine.png</file>
+        <file>image/line/StyleDashLine.png</file>
+        <file>image/line/StyleDotLine.png</file>
+        <file>image/line/StyleNoPen.png</file>
+        <file>image/line/StyleSolidLine.png</file>
+        <file>image/draw/Arc.png</file>
+        <file>image/draw/Button.png</file>
+        <file>image/draw/Clock.png</file>
+        <file>image/draw/Curve.png</file>
+        <file>image/draw/Ellipse.png</file>
+        <file>image/draw/Free.png</file>
+        <file>image/draw/Light.png</file>
+        <file>image/draw/Line.png</file>
+        <file>image/draw/Path.png</file>
+        <file>image/draw/Pixmap.png</file>
+        <file>image/draw/Point.png</file>
+        <file>image/draw/Polygon.png</file>
+        <file>image/draw/ProcessBar.png</file>
+        <file>image/draw/Rect.png</file>
+        <file>image/draw/Table.png</file>
+        <file>image/draw/Text.png</file>
+        <file>image/draw/TextBox.png</file>
+        <file>image/draw/ValueText.png</file>
+        <file>image/edit/Copy.png</file>
+        <file>image/edit/Cut.png</file>
+        <file>image/edit/Del.png</file>
+        <file>image/edit/Paste.png</file>
+        <file>image/edit/Redo.png</file>
+        <file>image/edit/Style.png</file>
+        <file>image/edit/Undo.png</file>
+        <file>image/graph/AlignBottom.png</file>
+        <file>image/graph/AlignLeft.png</file>
+        <file>image/graph/AlignRight.png</file>
+        <file>image/graph/AlignTop.png</file>
+        <file>image/graph/Down.png</file>
+        <file>image/graph/Left.png</file>
+        <file>image/graph/Merge.png</file>
+        <file>image/graph/MoveToBottom.png</file>
+        <file>image/graph/MoveToTop.png</file>
+        <file>image/graph/Right.png</file>
+        <file>image/graph/Up.png</file>
+    </qresource>
+</RCC>

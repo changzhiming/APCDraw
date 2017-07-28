@@ -1,6 +1,6 @@
 ﻿#ifndef TVIEW_H
 #define TVIEW_H
-
+#include "aglobal.h"
 #include <QGraphicsView>
 class QWidget;
 

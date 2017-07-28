@@ -2,6 +2,7 @@
 #define LOGIN_H
 
 #include <QSqlDatabase>
+#include <QSqlQuery>
 #include <QWidget>
 #include "aglobal.h"
 class QLabel;
@@ -30,6 +31,7 @@ private:
     QString m_dbName;
 
     qreal m_useAllTime;
+    QSqlQuery addTimeToDbQuery;
 };
 
 #endif // LOGIN_H

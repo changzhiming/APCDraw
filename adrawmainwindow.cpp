@@ -1,6 +1,6 @@
 ﻿#include "aglobal.h"
 #include "adrawmainwindow.h"
-#include "projectdirectory/aprojectdirectorywindow.h"
+#include "ui/aprojectdirectorywindow.h"
 #include "ageneralfunction.h"
 #include "drawCore/Graphics/GraphicsPub.h"
 #include "drawCore/Scene/Scene.h"
@@ -8,6 +8,11 @@
 #include "drawCore/Undo/UndoMoveDrag.h"
 #include "drawCore/View/View.h"
 #include "Dialog/aobjectanimation.h"
+#include <QString>
+#include "drawCore/Plot/graph.h"
+#include "drawCore/Plot/bar.h"
+#include "drawCore/Plot/piechart.h"
+#include <QThread>
 
 #include <QToolBox>
 #include <QToolButton>
@@ -38,8 +43,6 @@
  */
 
 
-QPointer<ADrawMainWindow> g_MainWidget;  //全局变量
-
 /*!
  * \brief ADrawMainWindow::ADrawMainWindow \a parent
  */
@@ -62,7 +65,7 @@ ADrawMainWindow::ADrawMainWindow(QWidget *parent) :
         }
         if(m_CurrentItemTypeAction.isNull())
             QMessageBox::warning(this, tr("提示"), tr("请选择一个绘图工具，再进行绘图"));
-    });   
+    });
 }
 
 /*!
@@ -70,9 +73,11 @@ ADrawMainWindow::ADrawMainWindow(QWidget *parent) :
  */
 ADrawMainWindow::~ADrawMainWindow()
 {
+
 }
-ADrawMainWindow *ADrawMainWindow::getInstance()
+ADrawMainWindow &ADrawMainWindow::getInstance()
 {
+    static ADrawMainWindow g_MainWidget(0);
     return g_MainWidget;
 }
 
@@ -110,7 +115,7 @@ void ADrawMainWindow::createDockWidget()
 /*!
  * \brief 创建工具栏Action \a name Action显示名字 \a iconDir 图标路径 \a data Action保存数据
  */
-QAction * ADrawMainWindow::createToolsAction(QString &name, QString &iconDir, QVariant data)
+QAction * ADrawMainWindow::createToolsAction(QString name, QString iconDir, QVariant data)
 {
     QAction *action = new QAction(QIcon(iconDir), name, this);
     action->setCheckable(true);
@@ -302,6 +307,7 @@ void ADrawMainWindow::onCreateNewWindow()
         return;
     }
 }
+//设当前绘画类型
 void ADrawMainWindow::updateCurrentItemType()
 {
     QAction * action = qobject_cast<QAction *>(sender());
@@ -323,8 +329,21 @@ void ADrawMainWindow::updateCurrentItemType()
  */
 void ADrawMainWindow::onDrawItem(double StartX, double StartY, double StopX, double StopY)
 {
-    TItem *item = TItemFactory::fFactory(m_CurrentItemTypeAction->data().toInt(), QPointF(StartX, StartY), QRectF(QPointF(0, 0), QSize(StopX - StartX, StopY - StartY)));
-    if(m_GraphicsView->scene() && item) {
-        m_GraphicsView->scene()->addItem(item);
+    if(m_CurrentItemTypeAction->data().toInt() == 0)
+    {
+        return;
     }
+    for(int i=0; i< 10000; i++)
+    {        
+        PieChart *customPlot = new PieChart(QPoint(StartX + i*300, StartY + i*300), QRectF(QPointF(0, 0), QSize(StopX - StartX, StopY - StartY)));
+        if(m_GraphicsView->scene() && customPlot) {
+             m_GraphicsView->scene()->addItem(customPlot);
+        }
+    }
+
+
+//    TItem *item = TItemFactory::fFactory(m_CurrentItemTypeAction->data().toInt(), QPointF(StartX, StartY), QRectF(QPointF(0, 0), QSize(StopX - StartX, StopY - StartY)));
+//    if(m_GraphicsView->scene() && item) {
+//        m_GraphicsView->scene()->addItem(item);
+//    }
 }

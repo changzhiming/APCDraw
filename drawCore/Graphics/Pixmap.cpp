@@ -3,7 +3,7 @@
 
 #include <QDebug>
 
-TPixmap::TPixmap(QPointF atScenePos, QRectF bounDingRect, QPen pen, QBrush brush, QString &FileDir) :
+TPixmap::TPixmap(QPointF atScenePos, QRectF bounDingRect, QPen pen, QBrush brush, QString FileDir) :
         TGraphics(atScenePos, bounDingRect, pen, brush)
 {
     mType = TItemFactory::Pixmap;
@@ -11,7 +11,7 @@ TPixmap::TPixmap(QPointF atScenePos, QRectF bounDingRect, QPen pen, QBrush brush
 }
 
 TPixmap::~TPixmap()
-{ qDebug()<<"Pixmap delete";}
+{ }
 
 TItem *TPixmap::fCopy()
 {
@@ -26,14 +26,14 @@ void TPixmap::fCopy(TPixmap *PixmapFrom)
         return;
     }
     TGraphics::fCopy(PixmapFrom);
-    this->fSetPixmapPath(PixmapFrom->fGetPixmapPath());
+    fSetPixmapPath(PixmapFrom->fGetPixmapPath());
 }
-inline void TPixmap::fSetPixmapPath(const QString &FileDir)
+void TPixmap::fSetPixmapPath(const QString &FileDir)
 {
     m_CurrentPixmapPath = FileDir;
 }
 
-inline QString TPixmap::fGetPixmapPath()
+QString TPixmap::fGetPixmapPath()
 {
     return m_CurrentPixmapPath;
 }
@@ -41,5 +41,5 @@ inline QString TPixmap::fGetPixmapPath()
 
 void TPixmap::fDraw(QPainter *painter)
 {
-    painter->drawPixmap(m_boundingRect.x(), m_boundingRect.y(), m_boundingRect.width(), m_boundingRect.height(), QPixmap(m_CurrentPixmapPath));
+    painter->drawPixmap(m_boundingRect.toRect(), QPixmap(m_CurrentPixmapPath));
 }

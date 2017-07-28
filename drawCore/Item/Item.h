@@ -5,14 +5,23 @@
 #include <QGraphicsItem>
 #include <QtGui/QPen>
 #include <QtGui/QPainter>
+#include <QDataStream>
 
 class TItem : public QObject, public QGraphicsItem
 {
     Q_OBJECT
     Q_INTERFACES(QGraphicsItem)
 
-    Q_PROPERTY(double RotateAngle READ fGetRotateAngle   WRITE fSetRotateAngle)
-    Q_PROPERTY(double ZValue READ fGetZValue  WRITE fSetZValue)
+    Q_PROPERTY(int     Type           READ fGetType           WRITE fSetType)
+    Q_PROPERTY(QRectF  BoundingRect   READ fGetBoundingRect   WRITE fSetBoundingRect)
+    Q_PROPERTY(double  RotateAngle    READ fGetRotateAngle    WRITE fSetRotateAngle)
+    Q_PROPERTY(double  ZValue         READ fGetZValue         WRITE fSetZValue)
+    Q_PROPERTY(QBrush  Brush          READ fGetBrush          WRITE fSetBrush)
+    Q_PROPERTY(QPen    Pen            READ fGetPen            WRITE fSetPen)
+    Q_PROPERTY(bool    MouseMove      READ fGetMoveAble       WRITE fSetMoveAble)
+    Q_PROPERTY(bool    Select         READ fGetSelectAble     WRITE fSetSelectAble)
+    Q_PROPERTY(bool    Drag           READ fGetDragAble       WRITE fSetDragAble)
+    Q_PROPERTY(bool    Focus          READ fGetFocusAble      WRITE fSetFocusAble)
 
 public:
 
@@ -25,6 +34,9 @@ public:
     virtual QRectF boundingRect() const;
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
     virtual void fDraw(QPainter* painter) = 0;
+
+    virtual QDataStream & serialize(QDataStream out);
+    virtual QDataStream & desserialize(QDataStream in);
 
     // 鼠标事件
     virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
@@ -72,122 +84,36 @@ public slots:
 
     //所有的内联函数
 public:
-    void TItem::fSetMouseStyle(bool mouseType)
-    {
-        m_MouseHand = mouseType;
-        update();
-    }
+    inline void fSetMouseStyle(bool mouseType);
+    inline bool fGetMouseStyle();
 
-    bool TItem::fGetMouseStyle()
-    {
-        return m_MouseHand;
-    }
+    inline void fSetZValue(double Z);
+    inline double fGetZValue();
 
-    void fSetZValue(double Z)
-    {
-        setZValue(Z);
-    }
+    inline void  fSetBoundingRect(const QRectF &boundingRect);
+    inline void fSetBoundingWidthHeight(double width, double height);
+    inline QRectF fGetBoundingRect();
 
-    double fGetZValue()
-    {
-        return zValue();
-    }
+    inline void fSetBrush(const QBrush &brush);
+    inline QBrush fGetBrush();
 
-    void  fSetBoundingRect(const QRectF &boundingRect)
-    {
-        m_boundingRect = boundingRect;
-        update();
-    }
+    inline void fSetPen(const QPen &pen);
+    inline QPen fGetPen();
+    inline void fUpdate();
 
-    void fSetBoundingWidthHeight(double width, double height)
-    {
-        m_boundingRect.setWidth(width);
-        m_boundingRect.setHeight(height);
-        update();
-    }
+    inline int  fGetType() const;
+    inline void fSetType(int type);
 
-    QRectF fGetBoundingRect()
-    {
-        return m_boundingRect;
-    }
+    inline bool fGetMoveAble() const;
+    inline void fSetMoveAble(bool Able);
+    inline void fMoveEnable(bool Enable);
 
-    void fSetBrush(const QBrush &brush)
-    {
-        m_Brush = brush;
-        update();
-    }
-
-    QBrush fGetBrush()
-    {
-         return m_Brush;
-    }
-
-    void fSetPen(const QPen &pen)
-    {
-        m_Pen = pen;
-        update();
-    }
-
-    QPen fGetPen()
-    {
-        return m_Pen;
-    }
-
-    inline void fUpdate()
-    {
-        update(boundingRect());
-    }
-
-    inline int  fGetType() const
-    {
-        return mType;
-    }
-
-    inline bool fGetMoveAble() const
-    {
-        return m_MoveEnable;
-    }
-
-    void fSetMoveAble(bool Able)
-    {
-        m_MoveEnable = Able;
-        fMoveEnable(Able);
-    }
-
-    void fMoveEnable(bool Enable)
-    {
-        setFlag(ItemIsMovable, Enable);
-    }
-
-    void fSetSelectAble(bool Able)
-    {
-        m_SelectEnable = Able;
-        setFlag(ItemIsSelectable, Able);
-    }
-
-    bool fGetSelectAble() const
-    {
-        return m_SelectEnable;
-    }
-
-    bool fGetDragAble() const
-    {
-        return m_DragEnable;
-    }
-    void fSetDragAble(bool Able)
-    {
-        m_DragEnable = Able;
-        setAcceptHoverEvents(Able);
-    }
-    void fSetFocusAble(bool Able)
-    {
-        m_FocusEnable = Able;
-        setFlag(ItemIsFocusable,  Able);
-    }
-    bool fGetFocusAble()
-    {
-        return m_FocusEnable;
-    }
+    inline void fSetSelectAble(bool Able);
+    inline bool fGetSelectAble() const;
+    inline bool fGetDragAble() const;
+    inline void fSetDragAble(bool Able);
+    inline void fSetFocusAble(bool Able);
+    inline bool fGetFocusAble();
 
 protected:
     int mType;
@@ -221,5 +147,126 @@ protected:
     QRectF m_boundingRect;
     bool m_MouseHand =  false;            //鼠标进入变手型
 };
+
+inline void TItem::fSetMouseStyle(bool mouseType)
+{
+    m_MouseHand = mouseType;
+    update();
+}
+
+inline bool TItem::fGetMouseStyle()
+{
+    return m_MouseHand;
+}
+
+inline void TItem::fSetZValue(double Z)
+{
+    setZValue(Z);
+}
+
+inline double TItem::fGetZValue()
+{
+    return zValue();
+}
+
+inline void  TItem::fSetBoundingRect(const QRectF &boundingRect)
+{
+    m_boundingRect = boundingRect;
+    update();
+}
+
+inline void TItem::fSetBoundingWidthHeight(double width, double height)
+{
+    m_boundingRect.setSize(QSize(width, height));
+    update();
+}
+
+inline QRectF TItem::fGetBoundingRect()
+{
+    return m_boundingRect;
+}
+
+inline void TItem::fSetBrush(const QBrush &brush)
+{
+    m_Brush = brush;
+    update();
+}
+
+inline QBrush TItem::fGetBrush()
+{
+     return m_Brush;
+}
+
+inline void TItem::fSetPen(const QPen &pen)
+{
+    m_Pen = pen;
+    update();
+}
+
+inline QPen TItem::fGetPen()
+{
+    return m_Pen;
+}
+
+inline void TItem::fUpdate()
+{
+    update(boundingRect());
+}
+
+inline int  TItem::fGetType() const
+{
+    return mType;
+}
+
+inline void TItem::fSetType(int type)
+{
+    mType = type;
+}
+
+inline bool TItem::fGetMoveAble() const
+{
+    return m_MoveEnable;
+}
+
+inline void TItem::fSetMoveAble(bool Able)
+{
+    m_MoveEnable = Able;
+    fMoveEnable(Able);
+}
+
+inline void TItem::fMoveEnable(bool Enable)
+{
+    setFlag(ItemIsMovable, Enable);
+}
+
+inline void TItem::fSetSelectAble(bool Able)
+{
+    m_SelectEnable = Able;
+    setFlag(ItemIsSelectable, Able);
+}
+
+inline bool TItem::fGetSelectAble() const
+{
+    return m_SelectEnable;
+}
+
+inline bool TItem::fGetDragAble() const
+{
+    return m_DragEnable;
+}
+inline void TItem::fSetDragAble(bool Able)
+{
+    m_DragEnable = Able;
+    setAcceptHoverEvents(Able);
+}
+inline void TItem::fSetFocusAble(bool Able)
+{
+    m_FocusEnable = Able;
+    setFlag(ItemIsFocusable,  Able);
+}
+inline bool TItem::fGetFocusAble()
+{
+    return m_FocusEnable;
+}
 
 #endif // TITEM_H

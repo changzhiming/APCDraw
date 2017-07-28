@@ -26,6 +26,9 @@ public:
                     ProcessBar  = 16,
                     Curve       = 17,
                     Clock       = 18,
+                    Graph       = 19,
+                    Bar         = 20,
+                    Pie         = 21,
 
                     Button      = 101,
                     InputEdit   = 102,

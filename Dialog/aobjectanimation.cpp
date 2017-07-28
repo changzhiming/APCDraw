@@ -55,9 +55,9 @@ AObjectAnimation::AObjectAnimation(TItemEx *item, QWidget *parent) :
     ui->comboBoxBrushStyle->addItem(tr("Qt::BDiagPattern"), (int)Qt::BDiagPattern);
     ui->comboBoxBrushStyle->addItem(tr("Qt::FDiagPattern"), (int)Qt::FDiagPattern);
     ui->comboBoxBrushStyle->addItem(tr("Qt::DiagCrossPattern"), (int)Qt::DiagCrossPattern);
-    ui->comboBoxBrushStyle->addItem(tr("Qt::LinearGradientPattern"), (int)Qt::LinearGradientPattern);
-    ui->comboBoxBrushStyle->addItem(tr("Qt::RadialGradientPattern"), (int)Qt::RadialGradientPattern);
-    ui->comboBoxBrushStyle->addItem(tr("Qt::ConicalGradientPattern"), (int)Qt::ConicalGradientPattern);
+//    ui->comboBoxBrushStyle->addItem(tr("Qt::LinearGradientPattern"), (int)Qt::LinearGradientPattern);
+//    ui->comboBoxBrushStyle->addItem(tr("Qt::RadialGradientPattern"), (int)Qt::RadialGradientPattern);
+//    ui->comboBoxBrushStyle->addItem(tr("Qt::ConicalGradientPattern"), (int)Qt::ConicalGradientPattern);
     ui->comboBoxBrushStyle->setCurrentIndex(item->fGetBackGroundStyle());
 
     palette = ui->labelBrushColor->palette();
@@ -66,9 +66,7 @@ AObjectAnimation::AObjectAnimation(TItemEx *item, QWidget *parent) :
     ui->spinBoxBrushAlpha->setValue(item->fGetBackGroundColor().alpha());
 
     connect(ui->pushButtonLeftAction, &QPushButton::clicked, [=](){
-        QStringList list;
-        list<<"s"<<"d";
-        JSDesignWidget * jsDesignWidget = new JSDesignWidget(list);
+        JSDesignWidget * jsDesignWidget = new JSDesignWidget(item);
         jsDesignWidget->show();
     });
 }
@@ -107,9 +105,8 @@ void AObjectAnimation::on_pushButtonClose_clicked()
 void AObjectAnimation::on_pushButtonLineColor_clicked()
 {
     QColor t_color = QColorDialog::getColor(m_item->fGetLineColor(), this);
-    qDebug()<<t_color;
     QPalette palette = ui->labelLineColor->palette();
-    palette.setColor(QPalette::Background, QColor(200, 200, 200));
+    palette.setColor(QPalette::Background, t_color);
     ui->labelLineColor->setPalette(palette);
 }
 

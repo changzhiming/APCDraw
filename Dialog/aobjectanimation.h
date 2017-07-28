@@ -18,7 +18,6 @@ public:
 private slots:
     void on_pushButtonOk_clicked();
     void on_pushButtonClose_clicked();
-
     void on_pushButtonLineColor_clicked();
 
     void on_pushButtonBrushColor_clicked();

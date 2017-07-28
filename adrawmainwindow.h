@@ -32,15 +32,14 @@ class ADrawMainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit ADrawMainWindow(QWidget *parent = 0);
     ~ADrawMainWindow();
 
-    static ADrawMainWindow * getInstance();
+    static ADrawMainWindow & getInstance();
 
     void createMenuAndToolBar();
     void createDockWidget();
 
-    QAction * createToolsAction(QString &name, QString &iconDir, QVariant data);
+    QAction * createToolsAction(QString name, QString iconDir, QVariant data);
     QToolButton *createToolButtonSetAction(QAction *action);
 public slots:
     void onNewFile();
@@ -48,6 +47,8 @@ public slots:
     void updateCurrentItemType();
     void onDrawItem(double StartX, double StartY, double StopX, double StopY);
 private:
+    explicit ADrawMainWindow(QWidget *parent = 0);
+
     QPointer<AProjectDirectoryWindow> m_ProjectDirectoryWindow; //工程目录;
     QPointer<TView> m_GraphicsView;                                     //绘图显示窗体
     QPointer<QUndoStack> m_UndoStack;                          //恢复重做存储栈

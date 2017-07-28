@@ -16,13 +16,11 @@ public:
     void fGetItemsList(QList<ItemType *> &List)
     {
         List.clear();
-
         foreach(QGraphicsItem *mGraphicsItem, items())
         {
             ItemType *FindItem = dynamic_cast<ItemType *>(mGraphicsItem);
 
-            if(FindItem)
-            {
+            if(FindItem) {
                 List.push_back(FindItem);
             }
         }
@@ -32,13 +30,11 @@ public:
     void fGetItemsSelected(QList<ItemType *> &List)
     {
         List.clear();
-
         foreach(QGraphicsItem *mGraphicsItem, selectedItems())
         {
             ItemType *FindItem = dynamic_cast<ItemType *>(mGraphicsItem);
 
-            if(FindItem)
-            {
+            if(FindItem) {
                 List.push_back(FindItem);
             }
         }
@@ -47,25 +43,8 @@ public:
     TItem* fGetItemByObjName(const QString &objectName);
 
     // 内联函数
-public:
-    void fSetName(QString Name)
-    {
-        mName = Name;
-    }
-
-    QString fGetName()
-    {
-        return mName;
-    }
-
-    void fSetUserData(void *UserData)
-    {
-        mUserData = UserData;
-    }
-    void* fGetUserData()
-    {
-        return mUserData;
-    }
+    inline void fSetName(QString Name);
+    inline QString fGetName();
 
 public slots:
     void fSetBackColor(int R, int G, int B, int A);
@@ -80,12 +59,18 @@ Q_SIGNALS:
     void mMoveItemList(TScene *Scene, QList<TItem *> ItemList,
                        double StartX, double StartY, double StopX, double StopY);
 private:
-    void *mUserData;
+
     double mStartDropX;
     double mStartDropY;
 
     QString mName;
     bool mSelectedBeforeDrop;
+
 };
+void TScene::fSetName(QString Name)
+{   mName = Name;}
+
+QString TScene::fGetName()
+{    return mName;}
 
 #endif // TSCENE_H

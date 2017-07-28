@@ -4,23 +4,22 @@
 #
 #-------------------------------------------------
 
-QT       += core gui quick sql
+QT += core gui quick sql serialport printsupport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 # QT Commonly used attributes
 CONFIG   += c++11 link_pkgconfig
-
+#DEFINES += QCUSTOMPLOT_USE_LIBRARY
 TEMPLATE = app
 
 CONFIG(debug, debug|release) {
     TARGET = APCDrawd
+    LIBS += -L$$PWD/bin/ -lQCustomplotd
 } else {
     TARGET = APCDraw
-}
-win32 {
-    LIBS += -ldbghelp
-    #QT += winextras
+    #DEFINES += QT_NO_DEBUG_OUTPUT
+    LIBS += -L$$PWD/bin/ -lQCustomplot
 }
 
 OBJDIR = obj_temp
@@ -29,9 +28,6 @@ RCC_DIR = $$OBJDIR/rcc
 MOC_DIR = $$OBJDIR/moc
 OBJECTS_DIR = $$OBJDIR/obj
 DESTDIR = $$PWD/bin
-
-# Set the QRC resource compression level
-QMAKE_RESOURCE_FLAGS += -compress 9 -threshold 0
 
 CONFIG   += warn_on exceptions_off
 CONFIG   += link_pkgconfig
@@ -45,7 +41,6 @@ system($$fromfile(translations/i18n.pri, updateallqm))
 # Source and resource files
 SOURCES += main.cpp\
         adrawmainwindow.cpp \
-    projectdirectory/aprojectdirectorywindow.cpp \
     ageneralfunction.cpp \
 #    drawCore/Widgets/Button.cpp \
 #    drawCore/Widgets/InputEdit.cpp \
@@ -75,11 +70,26 @@ SOURCES += main.cpp\
     drawCore/View/View.cpp \
     Dialog/aobjectanimation.cpp \
     login/login.cpp \
-    Dialog/jsdesignwidget.cpp
+    Dialog/jsdesignwidget.cpp \
+    JSEngine/ajsexecute.cpp \
+    Variable/avariable.cpp \
+    SendAndReciveThread/ahandledata.cpp \
+    SendAndReciveThread/areciverhandlethread.cpp \
+    SendAndReciveThread/ahandledatathread.cpp \
+    ProtocolPlugin/aloadandunloadplugin.cpp \
+    database/aexecdbthread.cpp \
+    Variable/audpvariable.cpp \
+    Variable/atcpvariable.cpp \
+    Variable/amanagevariable.cpp \
+    ui/aprojectdirectorywindow.cpp \
+    database/astoretodb.cpp \
+    drawCore/Plot/abstractplot.cpp \
+    drawCore/Plot/graph.cpp \
+    drawCore/Plot/bar.cpp \
+    drawCore/Plot/piechart.cpp
 
 HEADERS  += adrawmainwindow.h \
     aglobal.h \
-    projectdirectory/aprojectdirectorywindow.h \
     ageneralfunction.h \
 #    drawCore/Widgets/Button.h \
 #    drawCore/Widgets/InputEdit.h \
@@ -111,13 +121,31 @@ HEADERS  += adrawmainwindow.h \
     drawCore/View/View.h \
     Dialog/aobjectanimation.h \
     login/login.h \
-    Dialog/jsdesignwidget.h
+    Dialog/jsdesignwidget.h \
+    JSEngine/ajsexecute.h \
+    Variable/avariable.h \
+    SendAndReciveThread/ahandledata.h \
+    SendAndReciveThread/areciverhandlethread.h \
+    SendAndReciveThread/ahandledatathread.h \
+    ProtocolPlugin/abaseprotocol.h \
+    ProtocolPlugin/aloadandunloadplugin.h \
+    database/aexecdbthread.h \
+    Variable/audpvariable.h \
+    Variable/atcpvariable.h \
+    Variable/amanagevariable.h \
+    ui/aprojectdirectorywindow.h \
+    database/astoretodb.h \
+    drawCore/Plot/abstractplot.h \
+    drawCore/Plot/graph.h \
+    drawCore/Plot/bar.h \
+    drawCore/Plot/piechart.h
+
+INCLUDEPATH += $$PWD/include
 
 RESOURCES += \
     image.qrc \
 
-RC_ICONS = image/APCDraw1.ico
+#RC_ICONS = image/APCDraw1.ico
 
 FORMS += \
-    Dialog/aobjectanimation.ui \
-    Dialog/jsdesignwidget.ui
+    Dialog/aobjectanimation.ui

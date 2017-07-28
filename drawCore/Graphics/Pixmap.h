@@ -8,7 +8,7 @@ class TPixmap : public TGraphics
     Q_OBJECT
 public:
     TPixmap(QPointF atScenePos = QPointF(0, 0), QRectF bounDingRect = QRectF(QPointF(0, 0), QSize(40, 40)), QPen pen =QPen(Qt::black),
-            QBrush brush = QBrush(Qt::white), QString &FileDir = QString(":/menuImage/image/alarm.png"));
+            QBrush brush = QBrush(Qt::white), QString FileDir = QString(":/image/draw/Pixmap.png"));
 
     virtual ~TPixmap();
 

@@ -1,7 +1,4 @@
 <RCC>
-    <qresource prefix="/menuImage">
-        <file>image/alarm.png</file>
-    </qresource>
     <qresource prefix="/qss">
         <file>qss/adrawmainwindow.qss</file>
     </qresource>

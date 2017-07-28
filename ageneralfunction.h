@@ -21,9 +21,6 @@ public:
     explicit AGeneralFunction();
     static QString getStylesheet(const QString &filename);
 
-    static QSqlDatabase getDatabaseByConName(const QString &databaseName, const QString &conName);
-    static QSqlDatabase getDatabaseByConName(const QString &conName);
-
     static QByteArray getMd5Hash(QByteArray data);
     static QByteArray get_localmachine_mac();
 };

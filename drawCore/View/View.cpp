@@ -1,8 +1,8 @@
 ﻿#include "View.h"
-#include "aglobal.h"
 #include "Dialog/aobjectanimation.h"
-#include <QtGui>
-#include <cmath>
+#include "../Scene/Scene.h"
+#include <QWheelEvent>
+#include <QMouseEvent>
 #include <QMenu>
 
 TView::TView(QWidget *parent)

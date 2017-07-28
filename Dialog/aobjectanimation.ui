@@ -34,7 +34,7 @@
      <property name="currentIndex">
       <number>0</number>
      </property>
-     <widget class="QWidget" name="tab_1">
+     <widget class="QWidget" name="basePropertyTab">
       <attribute name="title">
        <string>基本属性</string>
       </attribute>

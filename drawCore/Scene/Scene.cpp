@@ -5,11 +5,8 @@
 
 TScene::TScene(QObject *parent) : QGraphicsScene(parent)
 {
-    mName = tr("");
     mStartDropX = 0;
     mStartDropY = 0;
-
-    mUserData = 0;
     mSelectedBeforeDrop = false;
 }
 
@@ -37,27 +34,27 @@ void TScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {   
     if(event->button()== Qt::LeftButton) {
         if(mSelectedBeforeDrop) {
-            QList<TItem *> ItemList;
-            fGetItemsSelected(ItemList);
+//            QList<TItem *> ItemList;
+//            fGetItemsSelected(ItemList);
 
-            bool SendEmit = true;
+//            bool SendEmit = true;
 
-            foreach(TItem *Item, ItemList)
-            {
-                if(!Item->fGetMoveAble())
-                {
+//            foreach(TItem *Item, ItemList)
+//            {
+//                if(!Item->fGetMoveAble())
+//                {
 
-                    SendEmit = false;
-                    break;
-                }
-            }
+//                    SendEmit = false;
+//                    break;
+//                }
+//            }
 
-            if(ItemList.length() > 0 && SendEmit)
-            {
-                emit mMoveItemList(this, ItemList,
-                                   mStartDropX, mStartDropY,
-                                   event->scenePos().x(), event->scenePos().y());
-            }
+//            if(ItemList.length() > 0 && SendEmit)
+//            {
+//                emit mMoveItemList(this, ItemList,
+//                                   mStartDropX, mStartDropY,
+//                                   event->scenePos().x(), event->scenePos().y());
+//            }
         } else {
             if(qAbs(event->scenePos().x() - mStartDropX) > 10)
                 emit mDropFinsh(mStartDropX, mStartDropY, event->scenePos().x(), event->scenePos().y());

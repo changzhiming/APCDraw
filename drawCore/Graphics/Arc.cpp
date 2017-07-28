@@ -17,9 +17,7 @@ TArc::~TArc()
 TItem *TArc::fCopy()
 {
     TArc *Arc = new TArc();
-
     Arc->fCopy(this);
-
     return Arc;
 }
 
@@ -78,17 +76,17 @@ double TArc::fGetCoverAngle() const
 void TArc::fDraw(QPainter *painter)
 {
     switch(mMode)
-    {
+    {        
     case MODE_PIE:
-        painter->drawPie(m_boundingRect, mStartAngle * 16, mCoverAngle * 16);
+        painter->drawPie(m_boundingRect.adjusted(0, 0, 0, m_boundingRect.height()), mStartAngle * 16, mCoverAngle * 16);
         break;
 
     case MODE_ARC:
-        painter->drawArc(m_boundingRect, mStartAngle * 16, mCoverAngle * 16);
+        painter->drawArc(m_boundingRect.adjusted(0, 0, 0, m_boundingRect.height()), mStartAngle * 16, mCoverAngle * 16);
         break;
 
     case MODE_CHORD:
-        painter->drawChord(m_boundingRect, mStartAngle * 16, mCoverAngle * 16);
+        painter->drawChord(m_boundingRect.adjusted(0, 0, 0, m_boundingRect.height()), mStartAngle * 16, mCoverAngle * 16);
         break;
 
     default:

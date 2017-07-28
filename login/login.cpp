@@ -1,5 +1,6 @@
 ﻿#include "login.h"
 #include "ageneralfunction.h"
+#include "database/aexecdbthread.h"
 #include <QMessageBox>
 #include <QSqlQuery>
 #include <QTimer>
@@ -15,7 +16,8 @@
 Login::Login(QString dbname, QWidget * parent) : QWidget(parent), m_dbName(dbname)
 {
     //授权码
-    QSqlDatabase sql = QAPC::AGeneralFunction::getDatabaseByConName(m_dbName ,"SqliteConnect");
+    AExecDbThread::addDbCon("QSQLITE", "", m_dbName, "BJM", "chang123." , "Sqlite1");
+    QSqlDatabase sql = AExecDbThread::getDb("Sqlite1");
     QSqlQuery query(sql);
     query.exec(QString("select login.UseTime, login.year_num from login"));
     if(query.next()) {
@@ -28,7 +30,6 @@ Login::Login(QString dbname, QWidget * parent) : QWidget(parent), m_dbName(dbnam
                 qDebug()<<QAPC::AGeneralFunction::getMd5Hash(QAPC::AGeneralFunction::get_localmachine_mac().append(QString::number(year)));
                 if(text == QAPC::AGeneralFunction::getMd5Hash(QAPC::AGeneralFunction::get_localmachine_mac().append(QString::number(year)))) {
 
-                    QSqlDatabase sql = QAPC::AGeneralFunction::getDatabaseByConName(m_dbName ,"SqliteConnect");
                     QSqlQuery query(sql);
                     query.exec(QString("update login set UseTime = %1").arg(0));
                     query.exec(QString("update login set year_num = %1").arg(++year));
@@ -39,7 +40,8 @@ Login::Login(QString dbname, QWidget * parent) : QWidget(parent), m_dbName(dbnam
                 qApp->quit();
         }
     }
-    //
+    addTimeToDbQuery = QSqlQuery(AExecDbThread::getDb("Sqlite1"));
+    //UI
     mLineEditName = new QLineEdit(this);
     mLineEditPassWd = new QLineEdit(this);
 
@@ -102,15 +104,15 @@ void Login::startAllTime()
 {
     QFileInfo fileInfo(m_dbName);
 
-    QSqlDatabase sql = QAPC::AGeneralFunction::getDatabaseByConName(m_dbName ,"SqliteConnect");
+    QSqlDatabase sql = AExecDbThread::getDb("Sqlite1");
     QSqlQuery query(sql);
     qDebug()<<query.exec(QString("update login set CreateTime = %1").arg(fileInfo.lastRead().toMSecsSinceEpoch()));
 }
 
 void Login::timerAddTimeToDb()
 {
-    static QSqlDatabase sql = QAPC::AGeneralFunction::getDatabaseByConName(m_dbName ,"SqliteConnect");
-    static QSqlQuery query(sql);
+    static QSqlQuery query(AExecDbThread::getDb("Sqlite1"));
+
     m_useAllTime += 60;
     query.exec(QString("update login set UseTime = %1").arg(m_useAllTime));
 
@@ -128,7 +130,7 @@ void Login::okPress()
         return;
     } else {
         if(!m_dbName.isEmpty()) {
-            QSqlDatabase sql = QAPC::AGeneralFunction::getDatabaseByConName(m_dbName ,"SqliteConnect");
+            QSqlDatabase sql = AExecDbThread::getDb("Sqlite1");
 
             QSqlQuery query(sql);
             query.exec("SELECT * FROM login");

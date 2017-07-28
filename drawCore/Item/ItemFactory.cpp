@@ -108,6 +108,12 @@ TItemEx* TItemFactory::fFactory(int Type, QPointF atScenePos, QRectF bounDingRec
         setTypeObjName(Item, ProcessBar);
     }
     break;
+    case Graph:
+    {
+        //Item = new QCustomPlot(atScenePos, bounDingRect, pen, brush);
+        //setTypeObjName(Item, Plot);
+    }
+    break;
 
 //    case Table:
 //    {
@@ -222,6 +228,11 @@ void TItemFactory::setTypeObjName(TItem *Item, int Type)
     case ProcessBar:
     {
         Item->setObjectName(QStringLiteral("ProcessBar") + QString::number(setTypeNum(ProcessBar)));
+    }
+    break;
+    case Graph:
+    {
+        Item->setObjectName(QStringLiteral("Graph") + QString::number(setTypeNum(Graph)));
     }
     break;
 

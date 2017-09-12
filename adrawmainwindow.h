@@ -45,7 +45,7 @@ public slots:
     void onNewFile();
     void onCreateNewWindow();
     void updateCurrentItemType();
-    void onDrawItem(double StartX, double StartY, double StopX, double StopY);
+    void onDrawItem(QRectF itemRect);
 private:
     explicit ADrawMainWindow(QWidget *parent = 0);
 

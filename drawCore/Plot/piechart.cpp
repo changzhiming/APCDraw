@@ -41,6 +41,7 @@ void PieChart::append(int perce, QString name)
 
 void PieChart::fDraw(QPainter *painter)
 {
+    painter->setClipRect(m_boundingRect);
     painter->drawRect(m_boundingRect);
     double lastAngle = 0, textLeftIndex = 10;
     int colorIndex = Qt::lightGray;
@@ -50,8 +51,15 @@ void PieChart::fDraw(QPainter *painter)
 
 
     pieRect.adjust(10 , 40 , -10, -10);
-    double RectWidth = pieRect.width() > pieRect.height() ? pieRect.height() : pieRect.width();
-    pieRect.setRect(pieRect.x(), pieRect.y(), RectWidth,  RectWidth);
+    double RectWidth;
+    if(pieRect.width() > pieRect.height()) {
+       RectWidth = pieRect.height();
+       pieRect.setRect(pieRect.x() + (pieRect.width() - pieRect.height())/2, pieRect.y(), RectWidth,  RectWidth);
+    } else {
+        RectWidth = pieRect.width();
+        pieRect.setRect(pieRect.x() , pieRect.y() + (pieRect.height() - pieRect.width())/2, RectWidth,  RectWidth);
+    }
+
 
     for(auto i =  m_ItemList.begin(); i != m_ItemList.end(); i++)
     {

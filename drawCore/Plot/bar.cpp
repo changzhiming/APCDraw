@@ -55,14 +55,10 @@ Bar::Bar(QPointF atScenePos, QRectF bounDingRect, QPen pen, QBrush brush) :Abstr
     customPlot->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignTop|Qt::AlignHCenter);
     customPlot->legend->setBrush(QColor(255, 255, 255, 100));
     customPlot->legend->setBorderPen(Qt::NoPen);
+    //set showTime Range
+    customPlot->xAxis->setRange(QDateTime::currentDateTime().addYears(-1).toSecsSinceEpoch(),  QDateTime::currentDateTime().toSecsSinceEpoch() + 30*3600*24);
 
-    double now =  QDateTime::currentDateTime().toTime_t();
-    double last = QDateTime::currentDateTime().addYears(-1).toTime_t();
-    customPlot->xAxis->setRange(last, now + 30*3600*24);
-
-
-
-    connect(&dataTimer, &QTimer::timeout, this, [=](){ fSetValue(1);});
+    connect(&dataTimer, &QTimer::timeout, this, [=](){ fSetValue(1, QDateTime::currentDateTime());});
     dataTimer.start(100); // Interval 0 means to refresh as fast as possible
 }
 TItem *Bar::fCopy()
@@ -88,34 +84,29 @@ void Bar::setcurrentYear(int currentYear)
 
 }
 
-void Bar::fSetValue(double value)
+void Bar::fSetValue(double value, QDateTime showDataTime)
 {
     Q_UNUSED(value)
-    if(!(QDateTime::currentDateTime().date().day() == 1) || !(QDateTime::currentDateTime().time() == QTime(8, 0, 0)))
-        return;
+    if(showDataTime.isValid()) {
+        QCPAbstractPlottable * plottable = customPlot->plottable(0);
 
-    double last =  QDateTime::currentDateTime().toTime_t();
-    double now = QDateTime::currentDateTime().addYears(-1).toTime_t();
+        if(plottable) {
+            QCPBars *regen = static_cast<QCPBars *>(plottable);
+            if(regen) {
+                regen->addData(showDataTime.toSecsSinceEpoch(), value);
 
-    QCPAbstractPlottable * plottable = customPlot->plottable(0);
+                if(value < customPlot->yAxis->range().lower) {
+                    customPlot->yAxis->setRange(value,  customPlot->yAxis->range().upper);
+                } else if(value > customPlot->yAxis->range().upper) {
+                    customPlot->yAxis->setRange(customPlot->yAxis->range().lower, value);
+                }
+                bool foundRange;
+                QCPRange keyRange = regen->data()->keyRange(foundRange);
 
-    if(plottable) {
-        QCPBars *regen = static_cast<QCPBars *>(plottable);
-        if(regen) {
-            regen->addData(QDateTime::currentDateTime().toTime_t(), value);
-
-            if(value < customPlot->yAxis->range().lower) {
-                customPlot->yAxis->setRange(value,  customPlot->yAxis->range().upper);
-            } else if(value > customPlot->yAxis->range().upper) {
-                customPlot->yAxis->setRange(customPlot->yAxis->range().lower, value);
+                if(keyRange.size() > (30*3600*24))
+                    regen->data()->removeBefore(keyRange.upper - (30*3600*24));
+                fUpdate();
             }
-            bool foundRange;
-            QCPRange keyRange = regen->data()->keyRange(foundRange);
-            qDebug()<<regen->dataCount();
-
-            if(keyRange.size() > (last - now))
-                regen->data()->removeBefore(keyRange.upper - (last - now));
-            fUpdate();
         }
     }
 }

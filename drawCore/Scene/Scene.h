@@ -55,7 +55,7 @@ protected:
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);// 鼠标松开
 
 Q_SIGNALS:
-    void mDropFinsh(double StartX, double StartY, double StopX, double StopY);
+    void mDropFinsh(QRectF bounDing);
     void mMoveItemList(TScene *Scene, QList<TItem *> ItemList,
                        double StartX, double StartY, double StopX, double StopY);
 private:

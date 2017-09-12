@@ -42,11 +42,6 @@
   \inmodule APCUI
  */
 
-
-/*!
- * \brief ADrawMainWindow::ADrawMainWindow \a parent
- */
-
 ADrawMainWindow::ADrawMainWindow(QWidget *parent) :
     QMainWindow(parent)
 {
@@ -327,17 +322,15 @@ void ADrawMainWindow::updateCurrentItemType()
 /*!
  * \brief ADrawMainWindow::onDrawItem 创建Item 添加到场景
  */
-void ADrawMainWindow::onDrawItem(double StartX, double StartY, double StopX, double StopY)
+void ADrawMainWindow::onDrawItem(QRectF itemRect)
 {
-    if(m_CurrentItemTypeAction->data().toInt() == 0)
-    {
-        return;
-    }
-    for(int i=0; i< 10000; i++)
-    {        
-        PieChart *customPlot = new PieChart(QPoint(StartX + i*300, StartY + i*300), QRectF(QPointF(0, 0), QSize(StopX - StartX, StopY - StartY)));
-        if(m_GraphicsView->scene() && customPlot) {
-             m_GraphicsView->scene()->addItem(customPlot);
+    if(m_CurrentItemTypeAction->data().toInt()) {
+        for(int i=0; i< 10; i++)
+        {
+            Bar *customPlot = new Bar(QPoint(itemRect.x() + i*300, itemRect.y() + i*300), QRectF(QPointF(0, 0), itemRect.size()));
+            if(m_GraphicsView->scene() && customPlot) {
+                 m_GraphicsView->scene()->addItem(customPlot);
+            }
         }
     }
 

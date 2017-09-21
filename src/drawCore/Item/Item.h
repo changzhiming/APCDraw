@@ -26,11 +26,10 @@ class TItem : public QGraphicsObject
 public:
     TItem(QPointF atScenePos = QPointF(0, 0), QRectF bounDingRect = QRectF(QPointF(0, 0), QSize(0, 0)), QPen pen =QPen(QColor(0, 0, 0)), QBrush brush = QBrush(QColor(0, 0, 0)));
     virtual ~TItem();
-    virtual QDataStream & serialize(QDataStream &out);
-    virtual QDataStream & desserialize(QDataStream &in);
-protected:
+
     virtual TItem* fCopy() = 0;             // 创建一个
     virtual void fCopy(TItem *ItemFrom);    // 根据拷贝已有对象的属性
+protected:
     virtual QRectF boundingRect() const;
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
     virtual void fDraw(QPainter* painter) = 0;
@@ -77,9 +76,6 @@ public slots:
 
     //所有的内联函数
 public:
-    inline void fSetMouseStyle(bool mouseType);
-    inline bool fGetMouseStyle();
-
     inline void fSetZValue(double Z);
     inline double fGetZValue() const;
 
@@ -138,20 +134,7 @@ protected:
     QPen m_Pen;
     QBrush m_Brush;
     QRectF m_boundingRect;
-
-    bool m_MouseHand =  false;            //鼠标进入变手型
 };
-
-inline void TItem::fSetMouseStyle(bool mouseType)
-{
-    m_MouseHand = mouseType;
-    update();
-}
-
-inline bool TItem::fGetMouseStyle()
-{
-    return m_MouseHand;
-}
 
 inline void TItem::fSetZValue(double Z)
 {

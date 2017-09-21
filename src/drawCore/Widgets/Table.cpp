@@ -1,21 +1,12 @@
 ﻿#include "Table.h"
-
-#include "Button.h"
 #include <QGraphicsSceneMouseEvent>
-#include <QDebug>
 
-TTable::TTable(double StartX, double StartY, double StopX, double StopY,
-               const Qt::PenStyle &LineStyle, const int LineWidth,
-               const QColor &LineColor, const QColor &BackColor) :
-    TWidgets(StartX, StartY, StopX, StopY, LineStyle, LineWidth, LineColor, BackColor)
+
+TTable::TTable(QPointF atScenePos, QRectF bounDingRect, QPen pen, QBrush brush) :
+    TWidgets(atScenePos, bounDingRect, pen, brush)
 {
     fSetType(TItemFactory::Table);
 
-#ifdef RUNNER
-    fSetDragAble(false);
-    fSetSelectAble(false);
-    setAcceptHoverEvents(false);
-#endif
     mCurrentIndex = -1;
     mCurrentCol = -1;
     mRowSum = 0;
@@ -28,35 +19,23 @@ TTable::TTable(double StartX, double StartY, double StopX, double StopY,
 TItem* TTable::fCopy()
 {
     TTable *Table = new TTable();
-
     Table->fCopy(this);
-
     return Table;
 }
 
 void TTable::fCopy(TTable *TableFrom)
 {
     if(NULL == TableFrom)
-    {
         return;
-    }
 
-    TWidgets::fCopy(TableFrom);
-
-    // 大小
-    this->fSetSize(TableFrom->fGetRowSum(), TableFrom->fGetColSum());
-
-    // 行高
-    this->fSetRowLength(TableFrom->fGetRowLength());
-
-    // 列宽
-    for(int i = 0; i < TableFrom->fGetColSum(); i++)
+    TWidgets::fCopy(TableFrom); 
+    this->fSetSize(TableFrom->fGetRowSum(), TableFrom->fGetColSum());  // 大小
+    this->fSetRowLength(TableFrom->fGetRowLength());  // 行高
+    for(int i = 0; i < TableFrom->fGetColSum(); i++) // 列宽
     {
         this->fSetColLength(i, TableFrom->fGetColLength(i));
-    }
-
-    // 内容
-    for(int i = 0; i < TableFrom->fGetRowSum(); i++)
+    }  
+    for(int i = 0; i < TableFrom->fGetRowSum(); i++) // 内容
     {
         for(int j = 0; j < TableFrom->fGetColSum(); j++)
         {
@@ -287,77 +266,76 @@ QString TTable::fGetCell(int Row, int Col)
 //void TTable::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 void TTable::fDraw(QPainter *painter)
 {
-    //fBeforePaint(painter, option, widget);
-
+    qreal mStartX = m_boundingRect.x(), mStopX = m_boundingRect.right();
+    qreal mStartY = m_boundingRect.y(), mStopY = m_boundingRect.bottom();
     // 计算列宽
-//    for(int i = 0; i < mColSum; i++)
-//    {
-//        mColLengthArray[i] = (mStopX - mStartX) / mColSum;
-//    }
-//    // 计算行高
-//    mRowLength = (mStopY - mStartY) / mRowSum;
+    for(int i = 0; i < mColSum; i++)
+    {
+        mColLengthArray[i] = (mStopX - mStartX) / mColSum;
+    }
+    // 计算行高
+    mRowLength = (mStopY - mStartY) / mRowSum;
 
-//    for(int i = 0; i < mRowSum; i++)
-//    {
-//        double Width = 0;
+    for(int i = 0; i < mRowSum; i++)
+    {
+        double Width = 0;
 
-//        if(mCurrentIndex == i)
-//        {
-//#ifndef RUNNER
-//            painter->setBrush(Qt::blue);
-//#endif
-//        }
-//        else
-//        {
-//            painter->setBrush(mBackGroundColor);
-//        }
+        if(mCurrentIndex == i)
+        {
+#ifndef RUNNER
+            painter->setBrush(Qt::blue);
+#endif
+        }
+        else
+        {
+            painter->setBrush(m_Brush.color());
+        }
 
-//        for(int j = 0; j < mColSum; j++)
-//        {
-//            painter->drawRect(mStartX + Width,
-//                              mStartY + i * mRowLength,
-//                              mColLengthArray[j],
-//                              mRowLength);
+        for(int j = 0; j < mColSum; j++)
+        {
+            painter->drawRect(mStartX + Width,
+                              mStartY + i * mRowLength,
+                              mColLengthArray[j],
+                              mRowLength);
 
-//            painter->drawText(mStartX + Width,
-//                              mStartY + i * mRowLength,
-//                              mColLengthArray[j],
-//                              mRowLength,
-//                              Qt::AlignCenter,
-//                              *mData[i][j]);
+            painter->drawText(mStartX + Width,
+                              mStartY + i * mRowLength,
+                              mColLengthArray[j],
+                              mRowLength,
+                              Qt::AlignCenter,
+                              *mData[i][j]);
 
-//            Width += mColLengthArray[j];
-//        }
-//    }
+            Width += mColLengthArray[j];
+        }
+    }
 }
 
 void TTable::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     // 判断在第几行
-//    if(mRowLength > 0 && mRowSum > 0)
-//    {
-//        mCurrentIndex = (event->pos().y() - mStartY) / mRowLength;
-//    }
+    if(mRowLength > 0 && mRowSum > 0)
+    {
+        mCurrentIndex = (event->pos().y() - m_boundingRect.right()) / mRowLength;
+    }
 
-//    // 判断在第几列
-//    if(mColLengthArray)
-//    {
-//        int Height = event->pos().x() - mStartX;
+    // 判断在第几列
+    if(mColLengthArray)
+    {
+        int Height = event->pos().x() - m_boundingRect.x();
 
-//        for(int i = 0; i < fGetColSum(); i++)
-//        {
-//            if(Height <= mColLengthArray[i])
-//            {
-//                mCurrentCol = i;
-//                break;
-//            }
-//            else
-//            {
-//                Height -= mColLengthArray[i];
-//            }
-//        }
-//    }
-
+        for(int i = 0; i < fGetColSum(); i++)
+        {
+            if(Height <= mColLengthArray[i])
+            {
+                mCurrentCol = i;
+                break;
+            }
+            else
+            {
+                Height -= mColLengthArray[i];
+            }
+        }
+    }
 
     //qDebug() << "TTable::mousePressEven" << mCurrentIndex << mCurrentCol;
 

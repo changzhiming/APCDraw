@@ -36,14 +36,16 @@ public:
                     Table       = 103,
                     Max,
               };
+
+
     static TItemEx * fFactory(int Type, QPointF atScenePos = QPointF(0, 0), QRectF bounDingRect = QRectF(QPointF(0, 0), QSize(40, 40)), QPen pen =QPen(Qt::black),
                             QBrush brush = QBrush(Qt::white));
-    static QHash<TItemFactory::Type, int> g_TypeNum;  //每种类型的最大个数
+    static QHash<TItemFactory::Type, int> g_TypeNum;            //每种类型的最大个数
     static int setTypeNum(Type type);
     static void setTypeObjName(TItem *item, int type);
-private:
-    TItemFactory();
-    ~TItemFactory();   
+
+    static QHash<TItemFactory::Type, int>& getTypeNum();
+    static void setTypeNum(QHash<TItemFactory::Type, int> typeList);
 };
 
 #endif // TITEM_FACTORY_H

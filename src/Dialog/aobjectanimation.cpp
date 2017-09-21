@@ -1,14 +1,16 @@
 ﻿#include "aobjectanimation.h"
 #include "ui_aobjectanimation.h"
-#include "ui_apixmapanimation.h"
+#include "itemProperty/apixmapanimation.h"
 #include "drawCore/Graphics/GraphicsPub.h"
 #include "drawCore/Plot/plotpub.h"
 #include "jsdesignwidget.h"
 #include <QMessageBox>
 #include <QColorDialog>
 #include "ageneralfunction.h"
+#include "adrawmainwindow.h"
 #include <QDebug>
 #include <QFileDialog>
+#include "ui/ashowinfoanimation.h"
 
 AObjectAnimation::AObjectAnimation(TItemEx *item, QWidget *parent) : QDialog(parent), ui(new Ui::AObjectAnimation), m_item(item)
 {
@@ -16,6 +18,8 @@ AObjectAnimation::AObjectAnimation(TItemEx *item, QWidget *parent) : QDialog(par
 
     setAttribute(Qt::WA_DeleteOnClose, true);
     setWindowFlags(windowFlags()^Qt::WindowContextHelpButtonHint);
+
+    setWindowModality(Qt::WindowModal);
     //初始化参数
     ui->lineEditObjname->setText(item->objectName());
     ui->lineEditHintText->setText(item->toolTip());
@@ -62,27 +66,21 @@ AObjectAnimation::AObjectAnimation(TItemEx *item, QWidget *parent) : QDialog(par
 
     ui->comboBoxBrushStyle->setCurrentIndex(item->fGetBackGroundStyle());
 
+    ui->lineEditDeviceAddr->setInputMask("hhh");
+    ui->comboBoxDeviceName->setCurrentText(m_item->fGetDeviceName());
+    ui->lineEditDeviceAddr->setText(QString::number(m_item->fGetRegisterAddr()));
+    ui->comboBoxDeviceType->setCurrentIndex(m_item->fGetRegisterType());
+
     palette = ui->labelBrushColor->palette();
     palette.setColor(QPalette::Window, item->fGetBackGroundColor());
     ui->labelBrushColor->setPalette(palette);
     ui->spinBoxBrushAlpha->setValue(item->fGetBackGroundColor().alpha());
 
-    connect(ui->pushButtonLeftAction, &QPushButton::clicked, [=](){
-        JSDesignWidget * jsDesignWidget = new JSDesignWidget(item);
-        jsDesignWidget->show();
-    });
     //Pixmap
     TPixmap *t_pixmap = qobject_cast<TPixmap *>(m_item);
     if(t_pixmap) {
-        (ui_pixmap = new Ui::APixmaptAnimation)->setupUi(m_pixmapWidget = new QWidget(this));
-        ui->tabWidget->addTab(m_pixmapWidget, "图片");
-        m_pixmapWidget->findChild<QLineEdit *>("lineEditPixmapPath")->setText(t_pixmap->fGetPixmapPath());
-
-        connect(ui_pixmap->pushButtonSelecPixamaptPath, &QPushButton::clicked, [this]{
-            QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), "", tr("Images (*.png *.jpg)"));
-            if(!fileName.isEmpty())
-                ui_pixmap->lineEditPixmapPath->setText(fileName);
-        });
+        m_pixmap = new APixmapAnimation(t_pixmap, this);
+        ui->tabWidget->addTab(m_pixmap, "图片");
     }
 }
 
@@ -90,12 +88,15 @@ AObjectAnimation::AObjectAnimation(TItemEx *item, QWidget *parent) : QDialog(par
 AObjectAnimation::~AObjectAnimation()
 {
     if(ui) delete ui;
-    if(ui_pixmap) delete ui_pixmap;
+}
+void AObjectAnimation::setAllDeviceName(QStringList alldeviceName)
+{
+    ui->comboBoxDeviceName->addItems(alldeviceName);
+    ui->comboBoxDeviceName->setCurrentText(m_item->fGetDeviceName());
 }
 
-void AObjectAnimation::on_pushButtonOk_clicked()
+void AObjectAnimation::ItemSave()
 {
-    //ItemEx
     m_item->setObjectName(ui->lineEditObjname->text());
     m_item->setToolTip(ui->lineEditHintText->text());
     m_item->fSetName(ui->lineEditName->text());
@@ -112,10 +113,21 @@ void AObjectAnimation::on_pushButtonOk_clicked()
     m_item->fSetBackGroundStyle(ui->comboBoxBrushStyle->currentData().toInt());
     m_item->fSetBackGroundColor(ui->labelBrushColor->palette().color(QPalette::Background));
     m_item->fSetBackGroundAlpha(ui->spinBoxBrushAlpha->value());
-    //Pixmap
-    TPixmap *t_pixmap = qobject_cast<TPixmap *>(m_item);
-    if(t_pixmap)
-        t_pixmap->fSetPixmapPath(m_pixmapWidget->findChild<QLineEdit *>("lineEditPixmapPath")->text());
+    //device
+    m_item->fSetDeviceName(ui->comboBoxDeviceName->currentText());
+    m_item->fSetRegisterAddr(ui->lineEditDeviceAddr->text().toInt());
+    m_item->fSetRegisterType(ui->comboBoxDeviceType->currentIndex());
+
+}
+
+void AObjectAnimation::on_pushButtonOk_clicked()
+{
+    ItemSave();     //ItemEx
+    if(m_pixmap)
+        m_pixmap->save();  //Pixmap
+    AShowInfoAnimation *info = new AShowInfoAnimation("保存成功");
+    info->show();
+    close();
 }
 
 void AObjectAnimation::on_pushButtonClose_clicked()
@@ -137,5 +149,49 @@ void AObjectAnimation::on_pushButtonBrushColor_clicked()
     QPalette palette = ui->labelBrushColor->palette();
     palette.setColor(QPalette::Background, t_color);
     ui->labelBrushColor->setPalette(palette);
+}
+
+void AObjectAnimation::on_pushButtonLeftAction_clicked()
+{
+    JSDesignWidget * jsDesignWidget = new JSDesignWidget(m_item->fGetName() + qobject_cast<QPushButton *>(sender())->text(), this);
+    jsDesignWidget->addJSWidget(tr("鼠标按压"), m_item->fGetMousePressJS());
+    jsDesignWidget->addJSWidget(tr("鼠标双击"), m_item->fGetMouseDoublicJS());
+    jsDesignWidget->addJSWidget(tr("鼠标释放"), m_item->fGetMouseRelease());
+
+    connect(jsDesignWidget, &JSDesignWidget::okData, [this](QMap<QString, QString> jsmap){
+        IF_TRUE_RUN(jsmap.contains(tr("鼠标按压")), m_item->fSetMousePressJS(jsmap.value(tr("鼠标按压"))))
+        IF_TRUE_RUN(jsmap.contains(tr("鼠标双击")), m_item->fSetMouseDoublicJS(jsmap.value(tr("鼠标双击"))))
+        IF_TRUE_RUN(jsmap.contains(tr("鼠标释放")), m_item->fSetMouseRelease(jsmap.value(tr("鼠标释放"))))
+    });
+    jsDesignWidget->show();
+}
+
+
+void AObjectAnimation::on_pushButtonRightAction_clicked()
+{
+    JSDesignWidget * jsDesignWidget = new JSDesignWidget(m_item->fGetName() + qobject_cast<QPushButton *>(sender())->text(), this);
+    jsDesignWidget->addJSWidget(tr("鼠标按压"), m_item->fGetMouseMenu());
+    jsDesignWidget->addJSWidget(tr("鼠标双击"));
+    jsDesignWidget->addJSWidget(tr("鼠标释放"));
+
+    connect(jsDesignWidget, &JSDesignWidget::okData, [this](QMap<QString, QString> jsmap){
+        IF_TRUE_RUN(jsmap.contains(tr("鼠标按压")), m_item->fSetMouseMenu(jsmap.value(tr("鼠标按压"))))
+    });
+    jsDesignWidget->show();
+}
+
+void AObjectAnimation::on_pushButtonMouseAction_clicked()
+{
+    JSDesignWidget * jsDesignWidget = new JSDesignWidget(m_item->fGetName() + qobject_cast<QPushButton *>(sender())->text(), this);
+    jsDesignWidget->addJSWidget(tr("鼠标进入"), m_item->fGetMouseEnterJS());
+    jsDesignWidget->addJSWidget(tr("鼠标移动"), m_item->fGetMouseMove());
+    jsDesignWidget->addJSWidget(tr("鼠标离开"), m_item->fGetMouseLeaveJS());
+
+    connect(jsDesignWidget, &JSDesignWidget::okData, [this](QMap<QString, QString> jsmap){
+        IF_TRUE_RUN(jsmap.contains(tr("鼠标进入")), m_item->fSetMouseEnterJS(jsmap.value(tr("鼠标进入"))))
+        IF_TRUE_RUN(jsmap.contains(tr("鼠标移动")), m_item->fSetMouseMove(jsmap.value(tr("鼠标移动"))))
+        IF_TRUE_RUN(jsmap.contains(tr("鼠标离开")), m_item->fSetMouseLeaveJS(jsmap.value(tr("鼠标离开"))))
+    });
+    jsDesignWidget->show();
 }
 

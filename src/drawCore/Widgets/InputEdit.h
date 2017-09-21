@@ -8,19 +8,19 @@ class TInputEdit : public TWidgets
 {
     Q_OBJECT
 public:
-    TInputEdit(double StartX = 0, double StartY = 0, double StopX = 0, double StopY = 0,
-               const Qt::PenStyle &LineStyle = Qt::SolidLine, const int LineWidth = 1,
-               const QColor &LineColor = Qt::white, const QColor &BackColor = Qt::black);
+    TInputEdit(QPointF atScenePos = QPointF(0, 0), QRectF bounDingRect = QRectF(QPointF(0, 0), QSize(40, 40)), QPen pen =QPen(Qt::white), QBrush brush = QBrush(Qt::black));
     virtual ~TInputEdit();
 
-    void keyReleaseEvent(QKeyEvent *event);
-
+    virtual TItem *fCopy();
+    virtual void fCopy(TInputEdit *InputEditFrom);
+protected:
+    virtual void keyReleaseEvent(QKeyEvent *event);
+    virtual void focusInEvent(QFocusEvent *event);
+    virtual void focusOutEvent(QFocusEvent *event);
+    virtual void inputMethodEvent(QInputMethodEvent *event);
+    QVariant inputMethodQuery(Qt::InputMethodQuery query) const;
+    virtual void fDraw(QPainter *painter);
 public slots:
-    TItem *fCopy();
-    void fCopy(TInputEdit *InputEditFrom);
-
-    virtual bool fSetSelectAble(bool Able);
-    virtual bool fGetSelectAble();
 
     void fSetText(const QString &Text);
     QString fGetText();
@@ -30,8 +30,8 @@ Q_SIGNALS:
 
 private:
     QString mText;
-    //void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
-    void fDraw(QPainter *painter);
+    bool m_showCursor = false;
+    QTimer *timer = nullptr;
 };
 
 #endif // TINPUT_EDIT_H

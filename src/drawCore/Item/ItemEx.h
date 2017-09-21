@@ -34,8 +34,18 @@ public:  //内联
     inline void fSetMouseDoublicJS(const QString &js);
     inline QString fGetMouseDoublicJS() const;
 
+    void fSetMouseRelease(const QString &js) {m_MouseRelease = js;}
+    QString fGetMouseRelease() const {return m_MousePressJS;}
+
+
+    inline void fSetMouseMenu(const QString &js) {m_MouseMenuJs = js;}
+    inline QString fGetMouseMenu() const {return m_MouseMenuJs;}
+
     inline void fSetMouseEnterJS(const QString &js);
     inline QString fGetMouseEnterJS() const;
+
+    void fSetMouseMove(const QString &js) {m_MouseMove = js;}
+    QString fGetMouseMove() const {return m_MouseMove;}
 
     inline void fSetMouseLeaveJS(const QString &js);
     inline QString fGetMouseLeaveJS() const;
@@ -48,6 +58,15 @@ public:  //内联
 
     inline void fSetName(QString name) { m_Name = name;}
     inline const QString & fGetName() const {  return m_Name; }
+    //连接设备信息
+    void fSetDeviceName(const QString &devicename) {m_deviceName = devicename;}
+    QString fGetDeviceName() {return m_deviceName;}
+
+    void fSetRegisterType(int type) {m_registerType = type;}
+    int fGetRegisterType() const {return m_registerType;}
+
+    void fSetRegisterAddr(int registerAddr) {m_registerAddr = registerAddr;}
+    int fGetRegisterAddr() const {return m_registerAddr;}
 
 Q_SIGNALS:
     void mGotoLink(QString &m_JumpSceneObjName);
@@ -55,9 +74,12 @@ Q_SIGNALS:
 
 protected:
     QString m_JumpSceneObjName;  ///<跳转场景OBJname
-    QString m_MousePressJS, m_MouseDoublickJS, m_MouseEnterJS, m_MouseLeaveJS;
+    QString m_MousePressJS, m_MouseDoublickJS, m_MouseMenuJs, m_MouseEnterJS, m_MouseLeaveJS, m_MouseMove, m_MouseRelease;
     QString m_Name;              //名称
     bool m_Disconnect = false;   //断开连接
+    QString m_deviceName;
+    int m_registerType = 0;
+    int m_registerAddr = 0;
 };
 
 inline void TItemEx::fSetMousePressJS(const QString &js)
@@ -65,8 +87,10 @@ inline void TItemEx::fSetMousePressJS(const QString &js)
 
 inline QString TItemEx::fGetMousePressJS() const
 {   return m_MousePressJS;}
+
 inline void TItemEx::fSetMouseDoublicJS(const QString &js)
 { m_MouseDoublickJS = js;}
+
 inline QString TItemEx::fGetMouseDoublicJS() const
 { return m_MouseDoublickJS;}
 

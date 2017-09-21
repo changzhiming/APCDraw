@@ -8,7 +8,6 @@ class TUndoAddDel : public TUndo
 public:
     TUndoAddDel();
     TUndoAddDel(TScene * Scene, QList<TItem *> &ItemList, QUndoCommand * Parent = NULL);
-
     enum
     {
         OPERATION_ADD,

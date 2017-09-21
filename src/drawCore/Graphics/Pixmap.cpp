@@ -25,26 +25,7 @@ void TPixmap::fCopy(TPixmap *PixmapFrom)
     TGraphics::fCopy(PixmapFrom);
     fSetPixmapPath(PixmapFrom->fGetPixmapPath());
 }
-QDataStream & TPixmap::serialize(QDataStream &out)
-{
-    out<<mType<<mRotateAngle<<m_MoveEnable<<m_SelectEnable<<m_DragEnable<<
-         m_FocusEnable<<m_Pen<<m_Brush<<m_boundingRect<<m_MouseHand<<pos();
-    return out;
-}
 
-QDataStream & TPixmap::desserialize(QDataStream &in)
-{
-    in>>mType>>mRotateAngle>>m_MoveEnable>>m_SelectEnable>>m_DragEnable>>
-         m_FocusEnable>>m_Pen>>m_Brush>>m_boundingRect>>m_MouseHand;
-    QPointF posPoint;
-    in>>posPoint;
-    setPos(posPoint);
-
-    fSetMoveAble(m_MoveEnable);
-    fSetSelectAble(m_SelectEnable);
-    fSetDragAble(m_DragEnable);
-    return in;
-}
 
 void TPixmap::fDraw(QPainter *painter)
 {

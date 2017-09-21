@@ -5,25 +5,30 @@
 class TItemEx;
 namespace Ui {
 class AObjectAnimation;
-class APixmaptAnimation;
 }
-
+class APixmapAnimation;
 class AObjectAnimation : public QDialog
 {
     Q_OBJECT
 public:
     explicit AObjectAnimation(TItemEx *item, QWidget *parent = 0);
     ~AObjectAnimation();
+    void setAllDeviceName(QStringList alldeviceName);
+private:
+    void ItemSave();
 private slots:
     void on_pushButtonOk_clicked();
     void on_pushButtonClose_clicked();
     void on_pushButtonLineColor_clicked();
     void on_pushButtonBrushColor_clicked();
+    void on_pushButtonLeftAction_clicked();
+    void on_pushButtonRightAction_clicked();
+    void on_pushButtonMouseAction_clicked();
+
 private:
     Ui::AObjectAnimation *ui;
-    Ui::APixmaptAnimation *ui_pixmap = nullptr;
+    APixmapAnimation *m_pixmap = nullptr;
     QWidget *m_pixmapWidget = nullptr;
-
     TItemEx *m_item;
 };
 

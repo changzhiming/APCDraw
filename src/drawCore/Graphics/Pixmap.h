@@ -11,11 +11,10 @@ public:
             QBrush brush = QBrush(Qt::white), QString FileDir = QString(":/image/draw/Pixmap.png"));
 
     virtual ~TPixmap();
-    virtual QDataStream & serialize(QDataStream &out);
-    virtual QDataStream & desserialize(QDataStream &in);
-protected:
     virtual TItem *fCopy();
     virtual void fCopy(TPixmap *PixmapFrom);
+
+protected:
     virtual void fDraw(QPainter *painter);
 /*
  * 供脚本调用的函数

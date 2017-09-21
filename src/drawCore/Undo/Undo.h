@@ -3,7 +3,6 @@
 
 #include "../Scene/Scene.h"
 #include "../Item/Item.h"
-
 #include <QUndoCommand>
 
 class TUndo : public QUndoCommand

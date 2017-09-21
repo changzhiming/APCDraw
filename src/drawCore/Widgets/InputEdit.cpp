@@ -1,21 +1,24 @@
 ﻿#include "InputEdit.h"
-
-#include <QKeyEvent>
 #include <QDebug>
+#include <QKeyEvent>
+#include <QTimer>
 
-TInputEdit::TInputEdit(double StartX, double StartY, double StopX, double StopY,
-                       const Qt::PenStyle &LineStyle, const int LineWidth,
-                       const QColor &LineColor, const QColor &BackColor) :
-       TWidgets(StartX, StartY, StopX, StopY, LineStyle, LineWidth, LineColor, BackColor)
+TInputEdit::TInputEdit(QPointF atScenePos, QRectF bounDingRect, QPen pen, QBrush brush) :
+    TWidgets(atScenePos, bounDingRect, pen, brush)
 {
-    fSetType(TItemFactory::InputEdit);
 
+    fSetType(TItemFactory::InputEdit);
     mText = tr("");
-    TItem::fSetSelectAble(true);
+    fSetFocusAble(true);
+    setFlag(QGraphicsItem::ItemAcceptsInputMethod, true);
+    setAcceptHoverEvents(true);
 }
 
 TInputEdit::~TInputEdit()
-{}
+{
+    if(timer)
+        timer->deleteLater();
+}
 
 TItem* TInputEdit::fCopy()
 {
@@ -29,81 +32,88 @@ TItem* TInputEdit::fCopy()
 void TInputEdit::fCopy(TInputEdit *InputEditFrom)
 {
     if(NULL == InputEditFrom)
-    {
         return;
-    }
 
     TWidgets::fCopy(InputEditFrom);
-
     this->fSetText(InputEditFrom->fGetText());
 }
 
-//void TInputEdit::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 void TInputEdit::fDraw(QPainter *painter)
 {
-    //fBeforePaint(painter, option, widget);
+    QFont font = painter->font();
+    font.setPointSize(0.7 * (m_boundingRect.height()) + 1);
+    painter->setFont(font);
 
-//    QFont font = painter->font();
-//    font.setPointSize(0.7 * (mStopY - mStartY) + 1);
-//    painter->setFont(font);
+    painter->save();
+    if(hasFocus()) {
+        painter->setPen(QPen(Qt::blue));
+        painter->setBrush(Qt::white);
+    }
+    painter->drawRect(m_boundingRect);
+    painter->restore();
+    painter->drawText(m_boundingRect, Qt::AlignLeft | Qt::AlignVCenter, mText);
+    if(m_showCursor) {
+        QFontMetricsF fm(font);
+        QRectF showCursorRect = m_boundingRect;
+        showCursorRect.adjust(0, 2, fm.width(mText), -2);
 
-//    //qDebug() << "TInputEdit::paint" << mText;
-
-//    painter->drawRect(mStartX, mStartY, mStopX - mStartX, mStopY - mStartY);
-//    painter->drawText(mStartX,
-//                        mStartY,
-//                        mStopX - mStartX,
-//                        mStopY - mStartY,
-//                        Qt::AlignLeft | Qt::AlignVCenter,
-//                        mText);
-}
-
-bool TInputEdit::fSetSelectAble(bool Able)
-{
-    Q_UNUSED(Able);
-
-    return false;
-}
-
-bool TInputEdit::fGetSelectAble()
-{
-    return mSelectAble;
+        painter->drawText(showCursorRect, Qt::AlignLeft | Qt::AlignVCenter, mText + '|');
+    }
 }
 
 void TInputEdit::keyReleaseEvent(QKeyEvent *event)
 {
-    qDebug() << "mText" << mText << event->text() << event->key();
-
-    bool Changed = false;
-
-    if(16777219 != event->key())
-    {
-        if(event->text().length() > 0)
-        {
-            mText += event->text();
-
-            Changed = true;
-        }
-    }
-    else
-    {
-        if(mText.length() > 0)
-        {
-            mText = mText.left(mText.length() - 1);
-
-            Changed = true;
-        }
+    switch (event->key()) {
+    case Qt::Key_Backspace:
+        mText = mText.left(mText.length() - 1);
+        break;
+    case Qt::Key_Return:
+        clearFocus();
+        break;
+    default:
+        mText += event->text();
+        break;
     }
 
     fUpdate();
-
-    if(Changed)
-    {
-
-        emit mTextChange(mText);
-    }
-
     QGraphicsItem::keyReleaseEvent(event);
+}
+void TInputEdit::focusInEvent(QFocusEvent *event)
+{
+    if(!timer) {
+        timer = new QTimer(this);
+        connect(timer, &QTimer::timeout, this, [this](){
+            m_showCursor = !m_showCursor;
+            update();
+        });
+    }
+    timer->start(1000);
+    TWidgets::focusInEvent(event);
+}
+
+void TInputEdit::focusOutEvent(QFocusEvent *event)
+{
+    if(timer) {
+        timer->stop();
+        m_showCursor = false;
+    }
+    emit mTextChange(mText);
+    TWidgets::focusOutEvent(event);
+}
+
+void TInputEdit::inputMethodEvent(QInputMethodEvent *event)
+{
+    mText += event->commitString();
+    update();
+}
+
+QVariant TInputEdit::inputMethodQuery(Qt::InputMethodQuery query) const
+{
+    if(query == Qt::ImEnabled)
+        return true;
+    if(query == Qt::ImCursorPosition)
+        return mText.size();
+    return false;
 }
 
 void TInputEdit::fSetText(const QString &Text)

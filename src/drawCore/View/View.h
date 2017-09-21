@@ -15,14 +15,13 @@ public:
     double fGetZoom() const;
 
 Q_SIGNALS:
-    void mMousePress(int x, int y);
+    void mMousePress(QGraphicsItem *item);
+    void mouseDoubleClick(QGraphicsItem *item);
 
 protected:
     void wheelEvent(QWheelEvent *event);
     void mousePressEvent(QMouseEvent *event);
-    void contextMenuEvent(QContextMenuEvent *event);
     void mouseDoubleClickEvent(QMouseEvent *event);
-
 private:
     double mZoom;
 };

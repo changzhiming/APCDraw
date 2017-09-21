@@ -1,11 +1,13 @@
-﻿#include <ageneralfunction.h>
+﻿#include "ageneralfunction.h"
+#include "aglobal.h"
 #include <QMessageBox>
 #include <QCryptographicHash>
 #include <QNetworkInterface>
-#include <QSqlDatabase>
 #include <QFile>
 #include <QSqlQuery>
-#include <QFile>
+
+#include "drawCore/Graphics/GraphicsPub.h"
+#include "drawCore/Plot/plotpub.h"
 /*!
   \class AGeneralFunction
   \brief
@@ -93,20 +95,30 @@ bool AGeneralFunction::execSql(const QString &connectName, const QString &sql)
 {
     QSqlDatabase db = QSqlDatabase::database(connectName);
     if(db.isValid()) {
-        return db.exec(sql).isValid();
+        QSqlQuery query(db);
+        return query.exec(sql);
     }
     return false;
 }
-bool AGeneralFunction::execSql(const QString &connectName, const QString &sql, const QByteArray &data)
+/*!
+ * \brief AGeneralFunction::createTable  如果表存在则删除后再重建
+ * \return
+ */
+bool AGeneralFunction::createTable(const QString &connectName, const QString &tableName, const QStringList &property, const QStringList &datatype)
 {
-    QSqlDatabase db = QSqlDatabase::database(connectName);
-    if(db.isValid()) {
-        QSqlQuery query(db);
-        query.prepare(sql);
-        query.bindValue(0, data, QSql::Binary);
-        return query.exec();
+    AGeneralFunction::execSql(connectName, tr("drop table %1").arg(tableName));
+    QString sql = QString("create table if not exists %1 (").arg(tableName);
+    if(property.size() != datatype.size())
+        return false;
+
+    for(int i = 0; i < property.size(); i++)
+    {
+        sql += property.at(i) + " " + datatype.at(i) + ", ";
     }
-    return true;
+    sql = sql.left(sql.size() - 2);
+    sql += ")";
+
+    return AGeneralFunction::execSql(connectName, sql);
 }
 
 QSqlQuery AGeneralFunction::getTableData(const QString &connectName, const QString &tableName)

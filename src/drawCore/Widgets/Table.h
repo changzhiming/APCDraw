@@ -8,9 +8,7 @@ class TTable : public TWidgets
 {
     Q_OBJECT
 public:
-    TTable(double StartX = 0, double StartY = 0, double StopX = 0, double StopY = 0,
-           const Qt::PenStyle &LineStyle = Qt::SolidLine, const int LineWidth = 1,
-           const QColor &LineColor = Qt::white, const QColor &BackColor = Qt::black);
+    TTable(QPointF atScenePos = QPointF(0, 0), QRectF bounDingRect = QRectF(QPointF(0, 0), QSize(40, 40)), QPen pen =QPen(Qt::white), QBrush brush = QBrush(Qt::black));
     virtual ~TTable();
 
 public slots:

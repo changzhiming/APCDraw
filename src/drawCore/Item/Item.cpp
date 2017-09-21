@@ -66,26 +66,6 @@ void TItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWi
     fDraw(painter);
 }
 
-QDataStream & TItem::serialize(QDataStream &out)
-{
-    out<<mType<<mRotateAngle<<m_MoveEnable<<m_SelectEnable<<m_DragEnable<<
-         m_FocusEnable<<m_Pen<<m_Brush<<m_boundingRect<<m_MouseHand<<pos();
-    return out;
-}
-
-QDataStream & TItem::desserialize(QDataStream &in)
-{
-    in>>mType>>mRotateAngle>>m_MoveEnable>>m_SelectEnable>>m_DragEnable>>
-         m_FocusEnable>>m_Pen>>m_Brush>>m_boundingRect>>m_MouseHand;
-    QPointF posPoint;
-    in>>posPoint;
-    setPos(posPoint);
-
-    fSetMoveAble(m_MoveEnable);
-    fSetSelectAble(m_SelectEnable);
-    fSetDragAble(m_DragEnable);
-    return in;
-}
 
 void TItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
@@ -109,50 +89,60 @@ void TItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     {
         QPointF dis = mapToScene(event->pos()) - mDropPos;
         mDropPos = mapToScene(event->pos());
+
+        QRectF t_saveBoundingRect = m_boundingRect;
         switch(mDropDirection)
         {
         case Direc_Top: // 上 dis.y < 0
         {
             m_boundingRect.adjust(0, 0, 0, -dis.y());
+            if(m_boundingRect.width() <= 0 || m_boundingRect.height() <= 0) {   m_boundingRect = t_saveBoundingRect;    break;   }
             moveBy(0, dis.y());
             break;
         }
         case Direc_RightTop: // 右上
         {
             m_boundingRect.adjust(0, 0, dis.x(), -dis.y());
+            if(m_boundingRect.width() <= 0 || m_boundingRect.height() <= 0) {   m_boundingRect = t_saveBoundingRect;    break;   }
             moveBy(0, dis.y());
             break;
         }
         case Direc_Right: // 右 dis.x > 0
         {
             m_boundingRect.adjust(0, 0, dis.x(), 0);
+            if(m_boundingRect.width() <= 0 || m_boundingRect.height() <= 0) {   m_boundingRect = t_saveBoundingRect;    break;   }
             break;
         }
         case Direc_RightBottom: // 右下
         {
             m_boundingRect.adjust(0, 0, dis.x(), dis.y());
+            if(m_boundingRect.width() <= 0 || m_boundingRect.height() <= 0) {   m_boundingRect = t_saveBoundingRect;    break;   }
             break;
         }
         case Direc_Bottom: // 下 dis.y > 0
         {
             m_boundingRect.adjust(0, 0, 0, dis.y());
+            if(m_boundingRect.width() <= 0 || m_boundingRect.height() <= 0) {   m_boundingRect = t_saveBoundingRect;    break;   }
             break;
         }
         case Direc_LeftBottom: // 左下
         {
             m_boundingRect.adjust(0, 0, -dis.x(), dis.y());
+            if(m_boundingRect.width() <= 0 || m_boundingRect.height() <= 0) {   m_boundingRect = t_saveBoundingRect;    break;   }
             moveBy(dis.x(), 0);
             break;
         }
         case Direc_Left: // 左 dis.x < 0
         {
             m_boundingRect.adjust(0, 0, -dis.x(), 0);
+            if(m_boundingRect.width() <= 0 || m_boundingRect.height() <= 0) {   m_boundingRect = t_saveBoundingRect;    break;   }
             moveBy(dis.x(), 0);
             break;
         }
         case Direc_LeftTop: // 左上
         {
             m_boundingRect.adjust(0, 0, -dis.x(), -dis.y());
+            if(m_boundingRect.width() <= 0 || m_boundingRect.height() <= 0) {   m_boundingRect = t_saveBoundingRect;    break;   }
             moveBy(dis.x(), dis.y());
             break;
         }

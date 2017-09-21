@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT += core gui sql serialport printsupport concurrent quick serialbus
+QT += core gui sql printsupport quick serialbus network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -12,6 +12,8 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 CONFIG   += c++11 link_pkgconfig
 #DEFINES += QCUSTOMPLOT_USE_LIBRARY
 TEMPLATE = app
+
+DEFINES += APCDraw
 
 CONFIG(debug, debug|release) {
     TARGET = APCDrawd
@@ -39,13 +41,13 @@ CONFIG   += link_pkgconfig
 #system($$fromfile(translations/i18n.pri, updateallqm))
 
 # Source and resource files
-SOURCES += main.cpp\
+SOURCES += main_draw.cpp\
         adrawmainwindow.cpp \
     ageneralfunction.cpp \
-#    drawCore/Widgets/Button.cpp \
-#    drawCore/Widgets/InputEdit.cpp \
-#    drawCore/Widgets/Table.cpp \
-#    drawCore/Widgets/Widgets.cpp \
+    drawCore/Widgets/Button.cpp \
+    drawCore/Widgets/InputEdit.cpp \
+    drawCore/Widgets/Table.cpp \
+    drawCore/Widgets/Widgets.cpp \
     drawCore/Graphics/Arc.cpp \
     drawCore/Graphics/Curve.cpp \
     drawCore/Graphics/Ellipse.cpp \
@@ -70,28 +72,31 @@ SOURCES += main.cpp\
     drawCore/View/View.cpp \
     Dialog/aobjectanimation.cpp \
     Dialog/jsdesignwidget.cpp \
-    ui/aprojectdirectorywindow.cpp \
     drawCore/Plot/abstractplot.cpp \
     drawCore/Plot/graph.cpp \
     drawCore/Plot/bar.cpp \
     drawCore/Plot/piechart.cpp \
     drawCore/Plot/instrumentpanel.cpp \
-    amanagedata.cpp \
     ui/login.cpp \
-    adeviceinfo.cpp
+    adeviceinfo.cpp \
+    ui/newdevice.cpp \
+    ui/ashowinfoanimation.cpp \
+    Dialog/itemProperty/apixmapanimation.cpp \
+    ui/awindowproperty.cpp \
+    ui/newdatabase.cpp
 
 HEADERS  += aglobal.h \
     adrawmainwindow.h \
     ageneralfunction.h \
-#    drawCore/Widgets/Button.h \
-#    drawCore/Widgets/InputEdit.h \
-#    drawCore/Widgets/Table.h \
-#    drawCore/Widgets/Widgets.h \
-#    drawCore/Widgets/WidgetsPub.h \
+    drawCore/Widgets/Button.h \
+    drawCore/Widgets/InputEdit.h \
+    drawCore/Widgets/Table.h \
+    drawCore/Widgets/Widgets.h \
+    drawCore/Widgets/WidgetsPub.h \
     drawCore/Graphics/Arc.h \
     drawCore/Graphics/Curve.h \
     drawCore/Graphics/Ellipse.h \
-     drawCore/Graphics/Graphics.h \
+    drawCore/Graphics/Graphics.h \
     drawCore/Graphics/GraphicsPub.h \
     drawCore/Graphics/Light.h \
     drawCore/Graphics/Line.h \
@@ -113,26 +118,32 @@ HEADERS  += aglobal.h \
     drawCore/View/View.h \
     Dialog/aobjectanimation.h \
     Dialog/jsdesignwidget.h \
-    ui/aprojectdirectorywindow.h \
     drawCore/Plot/abstractplot.h \
     drawCore/Plot/graph.h \
     drawCore/Plot/bar.h \
     drawCore/Plot/piechart.h \
     drawCore/Plot/instrumentpanel.h \
-    amanagedata.h \
     ui/login.h \
     adeviceinfo.h \
-    drawCore/Plot/plotpub.h
+    drawCore/Plot/plotpub.h \
+    ui/newdevice.h \
+    ui/ashowinfoanimation.h \
+    Dialog/itemProperty/apixmapanimation.h \
+    ui/awindowproperty.h \
+    ui/newdatabase.h
 
 INCLUDEPATH += $$PWD/include
 
 RESOURCES += \
-    image.qrc \
+    Draw.qrc \
 
 #RC_ICONS = image/APCDraw1.ico
 
 FORMS += \
     Dialog/aobjectanimation.ui \
-    Dialog/apixmapanimation.ui \
-    adrawmainwindow.ui
+    ui/newdevice.ui \
+    ui/ashowinfoanimation.ui \
+    Dialog/itemProperty/apixmapanimation.ui \
+    ui/awindowproperty.ui \
+    ui/newdatabase.ui
 

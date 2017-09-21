@@ -10,41 +10,27 @@ TUndoAddDel::TUndoAddDel() : TUndo()
 TUndoAddDel::TUndoAddDel(TScene * Scene, QList<TItem *> &ItemList, QUndoCommand * Parent)
     : TUndo(Scene, ItemList, Parent)
 {
-    //qDebug()<<"init undoaddDel";
 }
 
 void TUndoAddDel::undo()
 {
-    qDebug() << "TUndoAddDel::undo()" << mOperation;
-
     if(OPERATION_ADD == mOperation)
-    {
         fDoDel();
-    }
     else
-    {
         fDoAdd();
-    }
 }
 
 void TUndoAddDel::redo()
 {
-    //qDebug() << "TUndoAddDel::redo()" << mOperation;
-
     if(OPERATION_ADD == mOperation)
-    {
         fDoAdd();
-    }
     else
-    {
         fDoDel();
-    }
 }
 
 void TUndoAddDel::fDoAdd()
 {
-    if(mScene)
-    {
+    if(mScene) {
         foreach(TItem *Item, mList)
         {
             mScene->addItem(Item);
@@ -54,8 +40,7 @@ void TUndoAddDel::fDoAdd()
 
 void TUndoAddDel::fDoDel()
 {
-    if(mScene)
-    {
+    if(mScene) {
         foreach(TItem *Item, mList)
         {
             mScene->removeItem(Item);

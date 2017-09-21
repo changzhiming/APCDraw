@@ -9,6 +9,22 @@ TScene::TScene(QObject *parent) : QGraphicsScene(parent)
     mStartDropY = 0;
     mSelectedBeforeDrop = false;
 }
+TScene * TScene::fCopy()
+{
+    TScene *scene = new TScene(parent());
+    scene->setSceneRect(sceneRect());
+
+    scene->fSetName(fGetName() + QString::number(++m_maxSceneCopy));
+    scene->setBackgroundBrush(backgroundBrush());
+    QList<TItem *> itemList;
+    fGetItemsList(itemList);
+
+    foreach (auto *item, itemList) {
+        scene->addItem(item->fCopy());
+    }
+    return scene;
+}
+
 
 TScene::~TScene()
 { }
@@ -21,13 +37,16 @@ void TScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
         mStartDropX = event->scenePos().x();
         mStartDropY = event->scenePos().y();
 
-        QTransform deviceTransform;
-        QGraphicsItem *UnderItem = itemAt(mStartDropX, mStartDropY, deviceTransform);
+        QGraphicsItem *UnderItem = itemAt(mStartDropX, mStartDropY, QTransform());
 
         if(UnderItem && UnderItem->isSelected()) {
             mSelectedBeforeDrop = true;
         }
     }
+}
+void TScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+    QGraphicsScene::mouseMoveEvent(event);
 }
 
 void TScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
@@ -43,18 +62,18 @@ void TScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     QGraphicsScene::mouseReleaseEvent(event);
 }
 
-
 void TScene::fSetBackColor(int R, int G, int B, int A)
 {
     setBackgroundBrush(QBrush(QColor(R, G, B, A)));
+
 }
 
 /*!
- * \brief TScene::fGetItemByNameId  return TItem， TItem objname是 \a objectName
+ * \brief TScene::fGetItemByObjName  return TItem， TItem objname是 \a objectName
  */
 TItem* TScene::fGetItemByObjName(const QString &objectName)
 {
-    if(objectName.length() <= 0)
+    if(objectName.isEmpty())
         return nullptr;
     QList<TItem *> ItemList;
     fGetItemsList(ItemList);
@@ -62,6 +81,18 @@ TItem* TScene::fGetItemByObjName(const QString &objectName)
     foreach(TItem * item,  ItemList)
     {
         if(item->objectName() == objectName)
+            return item;
+    }
+    return nullptr;
+}
+TItem *TScene::fGetItemByName(const QString &name)
+{
+    if(name.isEmpty())
+        return nullptr;
+    QList<TItemEx *> ItemList;
+    fGetItemsList(ItemList);
+    foreach (auto *item, ItemList) {
+        if(item->fGetName() == name)
             return item;
     }
     return nullptr;

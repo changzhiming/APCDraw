@@ -36,7 +36,7 @@ private:
 
     QList<ADeviceInfo *> m_deviceInfoList;
     QTimer * m_tickTimer = nullptr ;
-    QThread *m_ModbusThread = nullptr;
+    QThread *m_ModbusThread =nullptr;
 };
 
 #endif // AMANAGEDATA_H

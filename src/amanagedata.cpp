@@ -7,6 +7,8 @@
 #include <QModbusRtuSerialMaster>
 #include <QModbusDataUnit>
 #include <QtConcurrent>
+#include <QTimer>
+#include <QThread>
 
 AManageData * AManageData::getInstance()
 {
@@ -23,45 +25,45 @@ AManageData::~AManageData()
 ADeviceInfo * AManageData::getDeviceInfo(const QString &deviceName) const
 {
     foreach (ADeviceInfo * deviceInfo, m_deviceInfoList) {
-        CONDITION_TRURUN_BOOL(deviceInfo->getDeviceName() == deviceName, deviceInfo)
+        IF_TRUE_RUN(deviceInfo->m_deviceName == deviceName, deviceInfo)
     }
     return nullptr;
 }
 bool AManageData::addDevice(ADeviceInfo *deviceInfo)
 {
-    CONDITION_TRURUN_BOOL(deviceInfo == nullptr || deviceInfo->getModbusClient() == nullptr, false);
+    IF_TRUE_RUN(deviceInfo == nullptr || deviceInfo->m_modbusDevice == nullptr, false);
     //判断是否重复添加
     m_deviceInfoList.append(deviceInfo);
     deviceInfo->setParent(this);
     foreach (ADeviceInfo * t_deviceInfo, m_deviceInfoList) {
-        if(t_deviceInfo->getIp() == deviceInfo->getIp() && t_deviceInfo->getPort() == deviceInfo->getPort())
+        if(t_deviceInfo->m_ip == deviceInfo->m_ip && t_deviceInfo->m_port == deviceInfo->m_port)
             return false;
     }
     //
-    if(deviceInfo->getConnectType() == Tcp) {
+    if(deviceInfo->m_connectType == Tcp) {
         QModbusClient *modbusDevice = new QModbusTcpClient(this);
         connect(modbusDevice, &QModbusClient::stateChanged, [this, deviceInfo](int state) {
             if(state != QModbusDevice::ConnectedState) {
-                deviceInfo->setConnectStatus(false);
-                emit deviceStatusChanged(deviceInfo->getDeviceName(), false);
+                deviceInfo->m_connectStatus = false;
+                emit deviceStatusChanged(deviceInfo->m_deviceName, false);
             } else {
-                deviceInfo->setConnectStatus(true);
-                emit deviceStatusChanged(deviceInfo->getDeviceName(), true);
+                deviceInfo->m_connectStatus = true;
+                emit deviceStatusChanged(deviceInfo->m_deviceName, true);
             }
         });
 
         if (modbusDevice->state() != QModbusDevice::ConnectedState) {
-            modbusDevice->setConnectionParameter(QModbusDevice::NetworkPortParameter, deviceInfo->getPort());
-            modbusDevice->setConnectionParameter(QModbusDevice::NetworkAddressParameter, deviceInfo->getIp());
-            modbusDevice->setTimeout(deviceInfo->getTimeOut());
-            modbusDevice->setNumberOfRetries(deviceInfo->getNumberOfRetries());
+            modbusDevice->setConnectionParameter(QModbusDevice::NetworkPortParameter, deviceInfo->m_port);
+            modbusDevice->setConnectionParameter(QModbusDevice::NetworkAddressParameter, deviceInfo->m_ip);
+            modbusDevice->setTimeout(deviceInfo->m_timeOut);
+            modbusDevice->setNumberOfRetries(deviceInfo->m_numberOfRetries);
 
             if (!modbusDevice->connectDevice()) {
                 qDebug()<<(tr("Connect failed: ") + modbusDevice->errorString());
             }
         }
     }
-    if(deviceInfo->getConnectType() == Serial) {
+    if(deviceInfo->m_connectType == Serial) {
         //串口初始化
     }
     return true;
@@ -74,7 +76,7 @@ AManageData::AManageData(QObject *parent) : QObject(parent)
     connect(m_tickTimer, &QTimer::timeout, this, [this](){
         static qint64 tickNumber = 100;
         foreach (ADeviceInfo* deviceInfo, m_deviceInfoList) {
-            if(tickNumber % deviceInfo->getTickInterval() == 0)
+            if(tickNumber % deviceInfo->m_tickInterval == 0)
                 readModbusData(deviceInfo, QModbusDataUnit::HoldingRegisters); //send 03;
         }
         tickNumber += 100;
@@ -89,15 +91,15 @@ AManageData::AManageData(QObject *parent) : QObject(parent)
 
 bool AManageData::readModbusData(ADeviceInfo *deviceInfo, QModbusDataUnit::RegisterType registerType)
 {
-    CONDITION_TRURUN_BOOL(deviceInfo == nullptr || deviceInfo->getModbusClient() == nullptr, false);
+    IF_TRUE_RUN(deviceInfo == nullptr || deviceInfo->m_modbusDevice == nullptr, false);
 
-    QModbusClient *modbusDevice = deviceInfo->getModbusClient();
+    QModbusClient *modbusDevice = deviceInfo->m_modbusDevice;
     if(!modbusDevice->connectDevice()) {
-        deviceInfo->setConnectStatus(false);
-        emit deviceStatusChanged(deviceInfo->getDeviceName(), false);
+        deviceInfo->m_connectStatus = false;
+        emit deviceStatusChanged(deviceInfo->m_deviceName, false);
         return false;
     }
-    if (auto *reply = modbusDevice->sendReadRequest(deviceInfo->getRegisterUnit(registerType), deviceInfo->getServerAddr())) {
+    if (auto *reply = modbusDevice->sendReadRequest(deviceInfo->getRegisterUnit(registerType), deviceInfo->m_serverAddr)) {
         if (!reply->isFinished()) {
             //读取数据
             connect(reply, &QModbusReply::finished, [this, deviceInfo, reply]{
@@ -119,13 +121,13 @@ bool AManageData::readModbusData(const QString &deviceName, QModbusDataUnit::Reg
 
 bool AManageData::writeModbusData(ADeviceInfo *deviceInfo, QModbusDataUnit::RegisterType registerType, quint16 startAddr, const QVector<quint16> &values)
 {
-    CONDITION_TRURUN_BOOL(deviceInfo == nullptr || deviceInfo->getModbusClient() == nullptr, false);
+    IF_TRUE_RUN(deviceInfo == nullptr || deviceInfo->m_modbusDevice == nullptr, false);
 
-    QModbusClient *modbusDevice = deviceInfo->getModbusClient();
+    QModbusClient *modbusDevice = deviceInfo->m_modbusDevice;
 
     if(!modbusDevice->connectDevice()) {
-        deviceInfo->setConnectStatus(false);
-        emit deviceStatusChanged(deviceInfo->getDeviceName(), false);
+        deviceInfo->m_connectStatus = (false);
+        emit deviceStatusChanged(deviceInfo->m_deviceName, false);
         return false;
     }
 
@@ -134,7 +136,7 @@ bool AManageData::writeModbusData(ADeviceInfo *deviceInfo, QModbusDataUnit::Regi
     dataUnit.setValueCount(values.count());
     dataUnit.setValues(values);
 
-    if (auto *reply = modbusDevice->sendWriteRequest(dataUnit, deviceInfo->getServerAddr())) {
+    if (auto *reply = modbusDevice->sendWriteRequest(dataUnit, deviceInfo->m_serverAddr)) {
         if (!reply->isFinished()) {
 
             connect(reply, &QModbusReply::finished, [this, deviceInfo, reply]{
@@ -171,7 +173,7 @@ void AManageData::valueChangedOperate(ADeviceInfo *deviceInfo, const QModbusData
 
         if(t_Unit.value(unit.startAddress() + i - t_Unit.startAddress()) != unit.value(i)) {
             t_Unit.setValue(unit.startAddress() + i - t_Unit.startAddress(), unit.value(i));
-            emit deviceValueChanged(deviceInfo->getDeviceName(), unit.startAddress() + i, unit.value(i));
+            emit deviceValueChanged(deviceInfo->m_deviceName, unit.startAddress() + i, unit.value(i));
             //数据更新操作
         }
     }

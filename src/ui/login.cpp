@@ -12,6 +12,7 @@
 #include <QApplication>
 #include <QInputDialog>
 #include <QDebug>
+
 Login::Login(QString dbname, QWidget * parent) : QWidget(parent), m_dbName(dbname)
 {
     //授权码
